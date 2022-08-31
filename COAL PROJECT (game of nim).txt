@@ -1,0 +1,156 @@
+include Irvine32.inc ;including irvine
+.data
+
+array byte 17 dup('*') ;declairing array and duplicating  values in array
+
+mymsg1 byte "FIRST PLAYER ",0dh,0ah,0
+mymsg2 byte "SECOND PLAYER ",0dh,0ah,0
+mymsg3 byte "LOST",0dh,0ah,0
+mymsg4 byte "TURN",0dh,0ah,0
+emsg1 byte "PLEASE ENTER NUMBER BETWEEN 1-3 ",0dh,0ah,0
+spacemsg  byte"        ",0
+spacemsg1 byte"       ",0
+spacemsg2 byte"      ",0
+spacemsg3 byte"     ",0
+
+
+
+piles dword 0
+win dword 111
+turn dword 111
+num dword 16
+
+
+.code
+
+
+
+print proc					; declairing procedure of print
+
+
+mov ecx,16					;moving 16 to ecx
+mov edx,offset spacemsg
+call writestring			 ; printing msg which is in spacemsg
+L1: ;declaring loop
+mov al,array[ecx]	  		;moving array value in al which  is hardcoded in array
+.if ecx == 15				 ;checking value of ecx printing 1 stick
+call crlf					 ;line break
+mov edx,offset spacemsg1    ; Printing spaces
+call writestring
+call writechar
+.elseif ecx == 12			;checking value of ecx printing 3 stick
+call crlf
+mov edx,offset spacemsg2
+call writestring
+call writechar
+.elseif ecx == 7			;checking value of ecx printing 3 stick
+
+call crlf
+mov edx,offset spacemsg3      
+call writestring
+call writechar
+.else
+call writechar
+.endif
+
+Loop L1
+ret
+print endp
+
+
+main proc
+
+.while win==111				;staring while by checking win condition
+mov ebx,0					;moving 0 to ebx
+.if num==1					;checking win by remaining sticks if 1 sticks is remained
+.if turn==111				;if player 1 wins
+call crlf					
+mov edx,offset mymsg1		
+call writestring
+mov edx,offset mymsg3
+call writestring 
+mov win,000
+mov turn,222				;ending loop 
+
+.elseif turn==000			;checking player2 win
+call crlf                   ;linebreak
+mov edx,offset mymsg2       ;moving mymsg2 into edx
+call writestring            ;printing
+mov edx,offset mymsg3
+call writestring
+mov win,000                 ;moving 000 in win
+mov turn,222	            ;moving 222 in turn
+.endif
+.endif                      ;endif
+.if num <= 0                ;checking num condition
+.if turn==000               ;checking if turn == 0
+call crlf
+mov edx,offset mymsg1
+call writestring
+mov edx,offset mymsg3
+call writestring 
+mov win,000                ;moving 000 in win
+mov turn,222               ;moving 222 in turn
+
+.elseif turn==111          ;checking if turn == 111
+call crlf
+mov edx,offset mymsg2
+call writestring
+mov edx,offset mymsg3
+call writestring
+mov win,000                ;moving 000 to win
+mov turn,222               ;moving 222 to turn
+.endif
+.endif 
+.if turn==111              ;checking if turn == 1
+call print                 ;printing procedue
+call crlf
+mov edx,offset mymsg1
+call writestring
+mov edx,offset mymsg4
+call writestring
+call readint              ;taking input
+.if eax >=1 && eax<=3     ;checking sticks input
+mov ecx,eax               ;moving eax to ecx
+L1:                       ;starting loop
+mov ebx,num               ;moving num to ebx
+mov array[ebx],'-'        ;removing sticks
+dec num                   ;decement num
+Loop L1                   ;ending loop
+mov turn,000              ;moving 000 to turn
+.else
+mov edx,offset emsg1      ;printing msg
+call writestring
+call crlf
+.endif
+
+
+.elseif turn==000         ;checking if turn  == 000
+call print                ;printing procedure
+call crlf
+mov edx,offset mymsg2
+call writestring
+mov edx,offset mymsg4
+call writestring
+call readint             ;taking input 
+.if eax >=1 && eax<=3    ;checking sticks input
+mov ecx,eax              ;moving eax to ecx
+L2:                      ;starting loop
+mov ebx,num              ;moving num to ebx
+mov array[ebx],'-'       ;removing sticks
+dec num                  ;decement num
+Loop L2                  ;ending loop
+mov turn,111             ;moving 111 to turn
+.else
+mov edx,offset emsg1
+call writestring
+call crlf
+
+.endif                  ;ending if
+.endif                  ;ending if
+
+.endw                   ;ending while      
+
+exit
+main ENDP
+END main
